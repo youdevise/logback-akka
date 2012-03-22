@@ -2,10 +2,6 @@ import sbt._
 import Keys._
 import xml.Group
 
-// import com.typesafe.sbtscalariform._
-// import ScalariformPlugin._
-// import ScalariformKeys._
-
 // Shell prompt which show the current project, git branch and build version
 // git magic from Daniel Sobral, adapted by Ivan Porto Carrero to also work with git flow branches
 object ShellPrompt {
@@ -27,28 +23,12 @@ object ShellPrompt {
       "%s:%s:%s> ".format (currBranch, currProject, LogbackAkkaSettings.buildVersion)
     }
   }
- 
 }
 
 object LogbackAkkaSettings {
   val buildOrganization = "io.mojolly.logback"
   val buildScalaVersion = "2.9.1"
   val buildVersion      = "0.8.3"
-
-  // lazy val formatSettings = ScalariformPlugin.settings ++ Seq(
-  //   preferences in ThisProject := formattingPreferences
-  // )
-
-  // def formattingPreferences = {
-  //   import scalariform.formatter.preferences._
-  //   (FormattingPreferences()
-  //       setPreference(IndentSpaces, 2)
-  //       setPreference(AlignParameters, true)
-  //       setPreference(AlignSingleLineCaseStatements, true)
-  //       setPreference(DoubleIndentClassDeclaration, true)
-  //       setPreference(RewriteArrowSymbols, true)
-  //       setPreference(PreserveSpaceBeforeArguments, true))
-  // }
 
   val description = SettingKey[String]("description")
 
@@ -74,24 +54,19 @@ object LogbackAkkaSettings {
         "-P:continuations:enable"),
       externalResolvers <<= resolvers map { rs => Resolver.withDefaultResolvers(rs, mavenCentral = true, scalaTools = false) },
       resolvers ++= Seq(
-        "GlassFish Repo" at "http://download.java.net/maven/glassfish/",
         "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-        "ScalaTools Snapshots" at "http://scala-tools.org/repo-snapshots"
+        "ScalaTools Snapshots" at "http://scala-tools.org/repo-snapshots",
+        "TIM Group Repo" at "http://repo-1:8081/nexus/content/groups/public",
+        "TIM Group Repo" at "http://repo-1:8081/nexus/content/repositories/yd-release-candidates"
       ),
       //retrieveManaged := true,
       // (excludeFilter in format) <<= (excludeFilter) (_ || "*Spec.scala"),
       libraryDependencies ++= Seq(
-        "org.scalatra" %% "scalatra" % "2.1.0-SNAPSHOT" % "provided",
-        "org.glassfish" % "javax.servlet" % "3.1" % "provided",
-        "com.ning" % "async-http-client" % "1.7.0",
         "org.scala-tools.time" %% "time" % "0.5" % "provided",
         "org.slf4j" % "slf4j-api" % "1.6.4",
-        "org.slf4j" % "log4j-over-slf4j" % "1.6.4",
-        "org.slf4j" % "jcl-over-slf4j" % "1.6.4",
         "com.weiglewilczek.slf4s" %% "slf4s" % "1.0.7",
         "ch.qos.logback" % "logback-classic" % "1.0.0",
-        "junit" % "junit" % "4.10" % "test",
-        "redis.clients" % "jedis" % "1.5.2" % "provided"
+        "junit" % "junit" % "4.10" % "test"
       ),
       libraryDependencies <+= (scalaVersion) {
         case "2.9.0-1" => "org.specs2" %% "specs2" % "1.5" % "test"
@@ -179,4 +154,3 @@ object LogbackAkkaBuild extends Build {
     description := "An async akka based logback appender")) 
   
 }
-// vim: set ts=2 sw=2 et:

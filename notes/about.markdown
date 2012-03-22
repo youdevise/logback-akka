@@ -1,4 +1,4 @@
-[Logback Ext](https://github.com/mojolly/logback-ext) are a bunch of extensions for logback.
+LogstashLayout to provide Logstash formatted JSON for Logback
 
 
 
