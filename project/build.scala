@@ -32,11 +32,6 @@ object LogbackAkkaSettings {
 
   val description = SettingKey[String]("description")
 
-  val compilerPlugins = Seq(
-    compilerPlugin("org.scala-lang.plugins" % "continuations" % buildScalaVersion),
-    compilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7")
-  )
-
   val buildSettings = Defaults.defaultSettings ++ Seq(
       name := "logback-ext",
       version := buildVersion,
@@ -50,8 +45,7 @@ object LogbackAkkaSettings {
         "-deprecation",
         "-unchecked",
         "-Xcheckinit",
-        "-encoding", "utf8",
-        "-P:continuations:enable"),
+        "-encoding", "utf8"),
       externalResolvers <<= resolvers map { rs => Resolver.withDefaultResolvers(rs, mavenCentral = true, scalaTools = false) },
       resolvers ++= Seq(
         "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
@@ -62,21 +56,15 @@ object LogbackAkkaSettings {
       //retrieveManaged := true,
       // (excludeFilter in format) <<= (excludeFilter) (_ || "*Spec.scala"),
       libraryDependencies ++= Seq(
-        "org.slf4j" % "slf4j-api" % "1.6.4",
-        "joda-time" % "joda-time" % "2.1",
         "ch.qos.logback" % "logback-classic" % "1.0.0",
-        "junit" % "junit" % "4.10" % "test"
+        "joda-time" % "joda-time" % "2.1",
+        "net.liftweb" %% "lift-json" % "2.4",
+        "org.joda" % "joda-convert" %	"1.2",
+        "org.slf4j" % "slf4j-api" % "1.6.4",
+        "junit" % "junit" % "4.10" % "test",
+        "org.specs2" %% "specs2" % "1.8.2" % "test"
       ),
-      libraryDependencies <+= (scalaVersion) {
-        case "2.9.0-1" => "org.specs2" %% "specs2" % "1.5" % "test"
-        case _ => "org.specs2" %% "specs2" % "1.8.2" % "test"
-      },
-      libraryDependencies <+= (scalaVersion) {
-        case "2.9.0-1" => "net.liftweb" %% "lift-json" % "2.4"
-        case "2.9.1" => "net.liftweb" %% "lift-json" % "2.4"
-      },
       crossScalaVersions := Seq("2.9.1", "2.9.0-1"),
-      libraryDependencies ++= compilerPlugins,
       autoCompilerPlugins := true,
       parallelExecution in Test := false,
       publishTo <<= (version) { version: String =>
@@ -132,11 +120,11 @@ object LogbackAkkaSettings {
     )},
     publishMavenStyle := true,
     publishTo <<= version { (v: String) =>
-      val nexus = "https://oss.sonatype.org/"
+      val nexus = "http://repo.youdevise.com:8081/nexus/content/repositories/"
       if (v.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "content/repositories/snapshots")
+        Some("snapshots" at nexus + "snapshots")
       else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+        Some("releases"  at nexus + "yd-release-candidates")
     },
     publishArtifact in Test := false,
     pomIncludeRepository := { x => false })
@@ -150,6 +138,6 @@ object LogbackAkkaBuild extends Build {
   val buildShellPrompt =  ShellPrompt.buildShellPrompt
 
   lazy val root = Project ("logback-akka", file("."), settings = projectSettings ++ Seq(
-    description := "An async akka based logback appender")) 
+    description := "A logstash layout for logback"))
   
 }
