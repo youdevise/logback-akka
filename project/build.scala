@@ -62,9 +62,8 @@ object LogbackAkkaSettings {
       //retrieveManaged := true,
       // (excludeFilter in format) <<= (excludeFilter) (_ || "*Spec.scala"),
       libraryDependencies ++= Seq(
-        "org.scala-tools.time" %% "time" % "0.5" % "provided",
         "org.slf4j" % "slf4j-api" % "1.6.4",
-        "com.weiglewilczek.slf4s" %% "slf4s" % "1.0.7",
+        "joda-time" % "joda-time" % "2.1",
         "ch.qos.logback" % "logback-classic" % "1.0.0",
         "junit" % "junit" % "4.10" % "test"
       ),

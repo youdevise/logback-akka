@@ -7,11 +7,11 @@ import collection.JavaConversions._
 import collection.mutable
 import collection.JavaConverters._
 import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.LayoutBase
 import net.liftweb.json._
 import net.liftweb.json.JsonDSL._
-import ch.qos.logback.core.LayoutBase
-import org.scala_tools.time.Imports._
 import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.{DateTimeZone, DateTime}
 
 class LogstashLayout[E] extends LayoutBase[E] {
 
