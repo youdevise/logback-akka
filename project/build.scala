@@ -68,9 +68,9 @@ object LogbackAkkaSettings {
       autoCompilerPlugins := true,
       parallelExecution in Test := false,
       publishTo <<= (version) { version: String =>
-        val nexus = "http://nexus.scala-tools.org/content/repositories/"
+        val nexus = "http://repo.youdevise.com:8081/nexus/content/repositories/"
         if (version.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus+"snapshots/") 
-        else                                   Some("releases" at nexus+"releases/")
+        else                                   Some("releases" at nexus+"yd-release-candidates/")
       },
       shellPrompt  := ShellPrompt.buildShellPrompt,
       testOptions := Seq(
