@@ -118,6 +118,7 @@ object LogbackAkkaSettings {
         </developer>
       </developers>
     )},
+    credentials += Credentials.loadCredentials(new File("/etc/sbt/credentials")),
     publishMavenStyle := true,
     publishTo <<= version { (v: String) =>
       val nexus = "http://repo.youdevise.com:8081/nexus/content/repositories/"

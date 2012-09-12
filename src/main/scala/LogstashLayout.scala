@@ -8,21 +8,21 @@ import collection.mutable
 import collection.JavaConverters._
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.LayoutBase
-import net.liftweb.json._
-import net.liftweb.json.JsonDSL._
-import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTimeZone, DateTime}
+import net.liftweb.json._
+import net.liftweb.json.JsonParser.ParseException
+import net.liftweb.json.JsonDSL._
+
+import org.joda.time.format.ISODateTimeFormat
 
 class LogstashLayout[E] extends LayoutBase[E] {
 
   implicit var formats = DefaultFormats
-
+  //Match on #tag
   private val TAG_REGEX: Regex = """(?iu)\B#([^,#=!\s./]+)([\s,.]|$)""".r
 
   @BeanProperty
   var applicationName: String = _
-  @BeanProperty
-  var eventType: String = _
 
   @BeanProperty
   var tags: String = _
@@ -31,14 +31,18 @@ class LogstashLayout[E] extends LayoutBase[E] {
     try {
       val event = p1.asInstanceOf[ILoggingEvent]
       val msg = event.getFormattedMessage
+
+      val extractedJson: JValue = try   { parse(msg) }
+      catch { case _ => ("@text" -> msg) }
+
       val tags = parseTags(msg)
       val jv: JValue =
         ("@timestamp" -> new DateTime(event.getTimeStamp).toString(ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC))) ~
-        ("@source_host" -> "pg-timapp-005.pgldn.youdevise.com") ~
-        ("@message" -> event.getFormattedMessage) ~
-        ("@tags" -> tags) ~
-        ("@type" -> "string") ~
-        ("@source" -> event.getLoggerName)
+          ("@source_host" -> "TODO") ~
+          ("@message" -> extractedJson) ~
+          ("@tags" -> tags) ~
+          ("@type" -> "string") ~
+          ("@source" -> event.getLoggerName)
 
       val fields = {
         exceptionFields(event) merge {
@@ -48,8 +52,7 @@ class LogstashLayout[E] extends LayoutBase[E] {
           (mdc merge
             ("thread_name" -> event.getThreadName) ~
               ("level" -> event.getLevel.toString) ~
-              ("application" -> applicationName) ~
-              ("event_type" -> eventType)
+              ("application" -> applicationName)
             )
         }
       }
@@ -92,7 +95,6 @@ class LogstashLayout[E] extends LayoutBase[E] {
   }
 
   private def parseTags(msg: String) = {
-    TAG_REGEX.findAllIn(msg).matchData.map(_.group(1).toUpperCase(Locale.ENGLISH)).toSet
+    TAG_REGEX.findAllIn(msg).matchData.map(_.group(1)).toSet
   }
-
 }
