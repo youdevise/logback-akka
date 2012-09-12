@@ -5,18 +5,18 @@ import xml.Group
 // Shell prompt which show the current project, git branch and build version
 // git magic from Daniel Sobral, adapted by Ivan Porto Carrero to also work with git flow branches
 object ShellPrompt {
- 
+
   object devnull extends ProcessLogger {
     def info (s: => String) {}
     def error (s: => String) { }
     def buffer[T] (f: => T): T = f
   }
-  
+
   val current = """\*\s+([^\s]+)""".r
-  
+
   def gitBranches = ("git branch --no-color" lines_! devnull mkString)
-  
-  val buildShellPrompt = { 
+
+  val buildShellPrompt = {
     (state: State) => {
       val currBranch = current findFirstMatchIn gitBranches map (_ group(1)) getOrElse "-"
       val currProject = Project.extract (state).currentProject.id
@@ -39,7 +39,6 @@ object LogbackAkkaSettings {
       scalaVersion := buildScalaVersion,
       javacOptions ++= Seq("-Xlint:unchecked"),
       exportJars := true,
-      testOptions in Test += Tests.Setup( () => System.setProperty("akka.mode", "test") ),
       scalacOptions ++= Seq(
         "-optimize",
         "-deprecation",
@@ -53,8 +52,6 @@ object LogbackAkkaSettings {
         "TIM Group Repo" at "http://repo-1:8081/nexus/content/groups/public",
         "TIM Group Repo" at "http://repo-1:8081/nexus/content/repositories/yd-release-candidates"
       ),
-      //retrieveManaged := true,
-      // (excludeFilter in format) <<= (excludeFilter) (_ || "*Spec.scala"),
       libraryDependencies ++= Seq(
         "ch.qos.logback" % "logback-classic" % "1.0.0",
         "joda-time" % "joda-time" % "2.1",
@@ -118,7 +115,6 @@ object LogbackAkkaSettings {
         </developer>
       </developers>
     )},
-    //credentials += Credentials.loadCredentials(new File("/etc/sbt/credentials")),
     credentials += Credentials(new File("/etc/sbt/credentials")),
     publishMavenStyle := true,
     publishTo <<= version { (v: String) =>
@@ -141,5 +137,5 @@ object LogbackAkkaBuild extends Build {
 
   lazy val root = Project ("logback-akka", file("."), settings = projectSettings ++ Seq(
     description := "A logstash layout for logback"))
-  
+
 }
