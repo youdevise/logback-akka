@@ -28,7 +28,7 @@ object ShellPrompt {
 object LogbackAkkaSettings {
   val buildOrganization = "io.mojolly.logback"
   val buildScalaVersion = "2.9.1"
-  val buildVersion      = "0.8.3"
+  val buildVersion      = "0.8.4"
 
   val description = SettingKey[String]("description")
 

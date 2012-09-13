@@ -46,7 +46,7 @@ class LogstashLayout[E] extends LayoutBase[E] {
           ("@source_host" -> sourceHost) ~
           ("@message" -> extractedJson) ~
           ("@tags" -> tags) ~
-          ("@type" -> "string") ~
+          ("@type" -> "java-logback") ~
           ("@source" -> event.getLoggerName)
 
       val fields = {
