@@ -1,6 +1,5 @@
 package mojolly.logback
 
-import scala.reflect.BeanProperty
 import collection.JavaConverters._
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.LayoutBase
