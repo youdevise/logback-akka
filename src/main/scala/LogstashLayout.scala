@@ -10,7 +10,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.LayoutBase
 import org.joda.time.{DateTimeZone, DateTime}
 import net.liftweb.json._
-import net.liftweb.json.JsonParser.ParseException
 import net.liftweb.json.JsonDSL._
 
 import org.joda.time.format.ISODateTimeFormat
@@ -27,6 +26,12 @@ class LogstashLayout[E] extends LayoutBase[E] {
   @BeanProperty
   var tags: String = _
 
+  lazy val sourceHost = try {
+    java.net.InetAddress.getLocalHost.toString
+  } catch {
+    case _ => "unable to obtain hostname"
+  }
+
   def doLayout(p1: E) = {
     try {
       val event = p1.asInstanceOf[ILoggingEvent]
@@ -38,7 +43,7 @@ class LogstashLayout[E] extends LayoutBase[E] {
       val tags = parseTags(msg)
       val jv: JValue =
         ("@timestamp" -> new DateTime(event.getTimeStamp).toString(ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC))) ~
-          ("@source_host" -> "TODO") ~
+          ("@source_host" -> sourceHost) ~
           ("@message" -> extractedJson) ~
           ("@tags" -> tags) ~
           ("@type" -> "string") ~
