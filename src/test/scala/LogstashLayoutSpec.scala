@@ -94,7 +94,7 @@ case class withLogger(loggerName: String) extends MustMatchers {
 
   def around(t: ⇒ Result): Result = {
     loggerContext = new LoggerContext
-    val configUrl = getClass.getClassLoader.getResource("redis-layout-spec.xml")
+    val configUrl = getClass.getClassLoader.getResource("./logback-spec.xml")
     StringListAppender2.messages.clear
     val cf = new JoranConfigurator
     cf.setContext(loggerContext)

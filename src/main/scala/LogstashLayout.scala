@@ -1,10 +1,6 @@
 package mojolly.logback
 
 import scala.reflect.BeanProperty
-import java.util.Locale
-import scala.util.matching.Regex
-import collection.JavaConversions._
-import collection.mutable
 import collection.JavaConverters._
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.LayoutBase
@@ -17,14 +13,12 @@ import org.joda.time.format.ISODateTimeFormat
 class LogstashLayout[E] extends LayoutBase[E] {
 
   implicit var formats = DefaultFormats
-  //Match on #tag
-  private val TAG_REGEX: Regex = """(?iu)\B#([^,#=!\s./]+)([\s,.]|$)""".r
 
-  @BeanProperty
-  var applicationName: String = _
+  var tags: JValue = _
 
-  @BeanProperty
-  var tags: String = _
+  def setTags(providedTags: String) {
+    tags = parse(providedTags)
+  }
 
   lazy val sourceHost = try {
     java.net.InetAddress.getLocalHost.toString
@@ -40,7 +34,6 @@ class LogstashLayout[E] extends LayoutBase[E] {
       val extractedJson: JValue = try   { parse(msg) }
       catch { case _ => ("@text" -> msg) }
 
-      val tags = parseTags(msg)
       val jv: JValue =
         ("@timestamp" -> new DateTime(event.getTimeStamp).toString(ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC))) ~
           ("@source_host" -> sourceHost) ~
@@ -56,8 +49,7 @@ class LogstashLayout[E] extends LayoutBase[E] {
           }
           (mdc merge
             ("thread_name" -> event.getThreadName) ~
-              ("level" -> event.getLevel.toString) ~
-              ("application" -> applicationName)
+              ("level" -> event.getLevel.toString)
             )
         }
       }
@@ -97,9 +89,5 @@ class LogstashLayout[E] extends LayoutBase[E] {
             jv
         }))
     }
-  }
-
-  private def parseTags(msg: String) = {
-    TAG_REGEX.findAllIn(msg).matchData.map(_.group(1)).toSet
   }
 }
