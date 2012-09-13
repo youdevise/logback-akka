@@ -30,7 +30,7 @@ class LogstashLayout[E] extends LayoutBase[E] {
       val event = p1.asInstanceOf[ILoggingEvent]
       val msg = event.getFormattedMessage
 
-      val extractedJson: JValue = try   { parse(msg) }
+      val extractedJson: JValue = try { parse(msg) }
       catch { case _ => ("@text" -> msg) }
 
       val jv: JValue =

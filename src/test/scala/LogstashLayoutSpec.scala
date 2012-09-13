@@ -56,32 +56,12 @@ class StringListAppender[E] extends AppenderBase[E] {
   }
 }
 
-object StringListAppender2 {
-  val messages = ListBuffer[String]()
-  var latch: Option[CountDownLatch] = None
-}
-class StringListAppender2[E] extends AppenderBase[E] {
-  import StringListAppender2._
-
-  @BeanProperty
-  var layout: Layout[E] = _
-
-  override def start() {
-    Option(layout).filter(_.isStarted).foreach(_ ⇒ super.start())
-  }
-
-  def append(p1: E) {
-    messages += layout.doLayout(p1)
-    latch foreach { _.countDown() }
-  }
-}
-class LogstashRedisLayoutSpec extends Specification {
-  def is =
+class LogstashLogstashLayoutSpec extends Specification { def is =
 
     sequential ^
       "A logstash layout should" ^
-      "render a regular log statement" ! withLogger("redis-logger-1").renderNormalLog ^
-      "render a log statement with an exception" ! withLogger("redis-logger-2").renderExceptionLog ^ end
+      "render a regular log statement" ! withLogger("logger-1").renderNormalLog ^
+      "render a log statement with an exception" ! withLogger("logger-2").renderExceptionLog ^ end
 
 }
 
@@ -95,14 +75,14 @@ case class withLogger(loggerName: String) extends MustMatchers {
   def around(t: ⇒ Result): Result = {
     loggerContext = new LoggerContext
     val configUrl = getClass.getClassLoader.getResource("./logback-spec.xml")
-    StringListAppender2.messages.clear
+    StringListAppender.messages.clear
     val cf = new JoranConfigurator
     cf.setContext(loggerContext)
     cf.doConfigure(configUrl)
     loggerContext.start()
     logger = loggerContext.getLogger(loggerName)
     StatusPrinter.printIfErrorsOccured(loggerContext)
-    StringListAppender2.latch = Some(latch)
+    StringListAppender.latch = Some(latch)
     val res: Result = t
     loggerContext.stop()
     StatusPrinter.printIfErrorsOccured(loggerContext)
@@ -114,8 +94,8 @@ case class withLogger(loggerName: String) extends MustMatchers {
       val ms = "this is a a message with a [fabricated] param"
       logger.info(ms)
       (latch.await(2, TimeUnit.SECONDS) must beTrue) and {
-        val js = JsonParser.parse(StringListAppender2.messages.head)
-        (js \ "@message").extract[String] must_== ms
+        val js: JValue = JsonParser.parse(StringListAppender.messages.head)
+        (js \ "@message" \ "@text").extract[String] must_== ms
       }
     }
   }
@@ -125,8 +105,8 @@ case class withLogger(loggerName: String) extends MustMatchers {
     try { throw new RuntimeException("the exception message") }
     catch { case e ⇒ logger.error(ms, e) }
     (latch.await(2, TimeUnit.SECONDS) must beTrue) and {
-      val js = JsonParser.parse(StringListAppender2.messages.head)
-      val msgMatch = (js \ "@message").extract[String] must_== ms
+      val js: JValue = JsonParser.parse(StringListAppender.messages.head)
+      val msgMatch = (js \ "@message" \ "@text").extract[String] must_== ms
       val err = (js \ "@fields")
       msgMatch and {
         ((err \ "error_message").extract[String] must_== "the exception message") and {
