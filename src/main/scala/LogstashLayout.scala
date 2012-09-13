@@ -18,7 +18,7 @@ class LogstashLayout[E] extends LayoutBase[E] {
 
   implicit var formats = DefaultFormats
   //Match on #tag
-  private val TAG_REGEX: Regex = """(?iu)\B#([^,#=!\s./]+)([\s,.]|$)""".r
+  private val TAG_REGEX: Regex = """(?iu)\B#([^,#=!\s./]+)([\s,.]|$)""".
 
   @BeanProperty
   var applicationName: String = _
